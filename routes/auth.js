@@ -4,6 +4,11 @@ const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const upload = require('../middleware/upload');
 
+// General login page (redirects to appropriate login)
+router.get('/login', (req, res) => {
+  res.render('auth/login', { title: 'Login to HomLet' });
+});
+
 // Client login page
 router.get('/client-login', (req, res) => {
   res.render('auth/client-login', { title: 'Client Login' });

@@ -37,6 +37,12 @@
             <span class="stat-number"><%= typeof stats !== 'undefined' ? stats.contactsCount : 0 %></span>
             <span class="stat-label">Contact Requests</span>
         </div>
+
+        <div class="stat-card">
+            <span class="stat-icon">🔔</span>
+            <span class="stat-number"><%= typeof stats !== 'undefined' ? stats.recentContactsCount : 0 %></span>
+            <span class="stat-label">Recent Contacts (24h)</span>
+        </div>
     </div>
 
     <!-- Quick Actions -->
@@ -50,6 +56,46 @@
             <a href="/admin/contacts" class="btn btn-warning">📞 View Contacts</a>
         </div>
     </div>
+
+    <!-- Recent Contact Notifications -->
+    <% if (typeof recentContacts !== 'undefined' && recentContacts && recentContacts.length > 0) { %>
+    <div class="card mb-4">
+        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; color: #667eea;">🔔 Recent Contact Notifications</h2>
+        <div class="notification-list">
+            <% recentContacts.forEach(contact => { %>
+                <div style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <h4 style="color: #667eea; margin: 0 0 0.5rem 0; font-size: 1.1rem;">🔔 New Contact Request</h4>
+                            <p style="color: rgba(255, 255, 255, 0.9); margin: 0; font-size: 0.95rem;">
+                                <strong><%= contact.clientName %></strong> contacted <strong><%= contact.agentName %></strong> 
+                                for property: <strong><%= contact.propertyTitle %></strong>
+                            </p>
+                        </div>
+                        <div style="text-align: right; color: rgba(255, 255, 255, 0.6); font-size: 0.85rem;">
+                            <%= new Date(contact.createdAt).toLocaleString() %>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                        <div>
+                            <strong style="color: #667eea;">Client:</strong><br>
+                            📧 <%= contact.client.email %><br>
+                            📞 <%= contact.clientPhone %>
+                        </div>
+                        <div>
+                            <strong style="color: #51cf66;">Agent:</strong><br>
+                            📧 <%= contact.agent.email %><br>
+                            📞 <%= contact.agentPhone %>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="/admin/contacts" class="btn btn-primary">View All Contacts</a>
+        </div>
+    </div>
+    <% } %>
 
     <!-- Recent Activity -->
     <div class="grid grid-3">

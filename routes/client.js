@@ -22,9 +22,7 @@ router.get('/dashboard', isAuthenticated, isClient, async (req, res) => {
       .populate('agent', 'fullName phone')
       .sort({ createdAt: -1 });
 
-    const client = await User.findById(req.session.user._id)
-      .populate('paymentHistory.propertyId', 'title')
-      .populate('paymentHistory.agentId', 'fullName');
+    const client = await User.findById(req.session.user._id);
 
     res.render('client/dashboard', {
       title: 'Client Dashboard',

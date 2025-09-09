@@ -60,13 +60,13 @@ const Rating = require('./models/Rating');
 
 async function createDefaultAdmin() {
   try {
-    const existingAdmin = await User.findOne({ email: process.env.ADMIN_EMAIL || 'admin@example.com' });
+    const existingAdmin = await User.findOne({ email: process.env.ADMIN_EMAIL || 'admin@homlet.com' });
     if (!existingAdmin) {
       const adminUser = new User({
         fullName: 'HomLet Administrator',
-        email: process.env.ADMIN_EMAIL || 'admin@example.com',
+        email: process.env.ADMIN_EMAIL || 'admin@homlet.com',
         phone: '+234-800-HOMLET',
-        password: process.env.ADMIN_PASSWORD || 'password123',
+        password: process.env.ADMIN_PASSWORD || 'admin123',
         role: 'admin'
       });
       await adminUser.save();
@@ -117,7 +117,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log('\n🚀 HomLet Server Started Successfully!');
   console.log(`📱 Access the app at: http://localhost:${PORT}`);
-  console.log(`👨‍💼 Admin login: ${process.env.ADMIN_EMAIL || 'admin@example.com'} / ${process.env.ADMIN_PASSWORD || 'password123'}`);
+  console.log(`👨‍💼 Admin login: ${process.env.ADMIN_EMAIL || 'admin@homlet.com'} / ${process.env.ADMIN_PASSWORD || 'admin123'}`);
   console.log(`🏠 Ready to serve property listings!\n`);
 });
 

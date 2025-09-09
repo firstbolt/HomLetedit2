@@ -134,25 +134,57 @@
 </section>
 
 <script>
-// Welcome voice message
+// Welcome voice message - Enhanced version
 document.addEventListener('DOMContentLoaded', function() {
-    // Play welcome message for all visitors
-    setTimeout(() => {
-        // Create and play welcome message
-        const welcomeMessage = new SpeechSynthesisUtterance('Welcome to HomLet! Connect with trusted real estate agents and discover your dream property with HomLet.');
-        welcomeMessage.rate = 0.8;
-        welcomeMessage.pitch = 1;
-        welcomeMessage.volume = 0.8;
-        
-        // Use a pleasant voice if available
-        const voices = speechSynthesis.getVoices();
-        const femaleVoice = voices.find(voice => voice.name.includes('Female') || voice.name.includes('Samantha') || voice.name.includes('Karen'));
-        if (femaleVoice) {
-            welcomeMessage.voice = femaleVoice;
-        }
-        
-        speechSynthesis.speak(welcomeMessage);
-    }, 2000); // Delay to ensure page is fully loaded
+    // Check if user has heard welcome message in this session
+    if (!sessionStorage.getItem('welcomeMessagePlayed')) {
+        setTimeout(() => {
+            // Wait for voices to load
+            function playWelcomeMessage() {
+                const welcomeMessage = new SpeechSynthesisUtterance('Welcome to HomLet! Your trusted platform for connecting with verified real estate agents and discovering your dream property. Browse thousands of properties and connect with professional agents today!');
+                welcomeMessage.rate = 0.9;
+                welcomeMessage.pitch = 1.1;
+                welcomeMessage.volume = 0.9;
+                
+                // Use a pleasant voice if available
+                const voices = speechSynthesis.getVoices();
+                const preferredVoice = voices.find(voice => 
+                    voice.name.includes('Female') || 
+                    voice.name.includes('Samantha') || 
+                    voice.name.includes('Karen') ||
+                    voice.name.includes('Google UK English Female') ||
+                    voice.lang.includes('en-US') && voice.name.includes('Female')
+                );
+                
+                if (preferredVoice) {
+                    welcomeMessage.voice = preferredVoice;
+                }
+                
+                // Add event listeners
+                welcomeMessage.onstart = function() {
+                    console.log('🔊 Welcome message started');
+                };
+                
+                welcomeMessage.onend = function() {
+                    console.log('🔊 Welcome message completed');
+                    sessionStorage.setItem('welcomeMessagePlayed', 'true');
+                };
+                
+                welcomeMessage.onerror = function(event) {
+                    console.log('🔊 Welcome message error:', event.error);
+                };
+                
+                speechSynthesis.speak(welcomeMessage);
+            }
+            
+            // Ensure voices are loaded
+            if (speechSynthesis.getVoices().length > 0) {
+                playWelcomeMessage();
+            } else {
+                speechSynthesis.addEventListener('voiceschanged', playWelcomeMessage, { once: true });
+            }
+        }, 3000); // Increased delay to ensure page is fully loaded
+    }
 });
 
 // Fallback video sources

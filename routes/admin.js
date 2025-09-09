@@ -50,6 +50,16 @@ router.get('/dashboard', isAuthenticated, isAdmin, async (req, res) => {
     const pendingDeals = await Deal.countDocuments({ status: 'pending' });
     const contactsCount = await Contact.countDocuments();
 
+    // Get recent contacts (last 24 hours)
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const recentContacts = await Contact.find({ 
+      createdAt: { $gte: twentyFourHoursAgo } 
+    })
+      .populate('client', 'fullName email phone')
+      .populate('agent', 'fullName email phone')
+      .populate('property', 'title price location')
+      .sort({ createdAt: -1 })
+      .limit(10);
     const recentClients = await User.find({ role: 'client' })
       .sort({ createdAt: -1 })
       .limit(5);
@@ -70,11 +80,13 @@ router.get('/dashboard', isAuthenticated, isAdmin, async (req, res) => {
         agentsCount,
         propertiesCount,
         pendingDeals,
-        contactsCount
+        contactsCount,
+        recentContactsCount: recentContacts.length
       },
       recentClients,
       recentAgents,
-      recentProperties
+      recentProperties,
+      recentContacts
     });
   } catch (error) {
     console.error('Admin dashboard error:', error);

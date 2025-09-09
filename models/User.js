@@ -51,6 +51,33 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // Client-specific fields
+  unlockedAgents: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  paymentHistory: [{
+    amount: {
+      type: Number,
+      default: 0
+    },
+    date: {
+      type: Date,
+      default: Date.now
+    },
+    agentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    propertyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Property'
+    },
+    description: {
+      type: String,
+      default: ''
+    }
+  }]
 }, {
   timestamps: true
 });
