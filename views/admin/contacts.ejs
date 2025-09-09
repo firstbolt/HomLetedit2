@@ -1,0 +1,203 @@
+<%- include('../partials/header') %>
+
+<div class="container" style="padding: 2rem 0;">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: #4f46e5;">📞 Client-Agent Contacts</h1>
+        <p style="color: rgba(255, 255, 255, 0.8);">Monitor all client-agent contact requests</p>
+    </div>
+
+    <div class="card">
+        <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+            <h2 style="font-size: 1.5rem; color: #4f46e5; margin: 0;">All Contact Requests</h2>
+        </div>
+        
+        <% if (contacts && contacts.length > 0) { %>
+            <!-- Search Filter -->
+            <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                <div style="max-width: 400px;">
+                    <input type="text" id="contactSearch" placeholder="🔍 Search contacts..." class="form-input" onkeyup="filterContacts()">
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="table" id="contactsTable">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Client</th>
+                            <th>Agent</th>
+                            <th>Property</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contactsTableBody">
+                        <% contacts.forEach((contact, index) => { %>
+                            <tr class="contact-row" style="<%= index >= 10 ? 'display: none;' : '' %>">
+                                <td style="color: rgba(255, 255, 255, 0.9);">
+                                    <div style="font-weight: 600; margin-bottom: 0.25rem;">
+                                        <%= new Date(contact.createdAt).toLocaleDateString() %>
+                                    </div>
+                                    <div style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);">
+                                        <%= new Date(contact.createdAt).toLocaleTimeString() %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="margin-bottom: 0.5rem;">
+                                        <div style="font-weight: 600; color: #ffffff;"><%= contact.clientName %></div>
+                                        <div style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);"><%= contact.client.email %></div>
+                                        <div style="font-size: 0.875rem; color: #4f46e5; font-weight: 600;">📞 <%= contact.clientPhone %></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="margin-bottom: 0.5rem;">
+                                        <div style="font-weight: 600; color: #ffffff;"><%= contact.agentName %></div>
+                                        <div style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);"><%= contact.agent.email %></div>
+                                        <div style="font-size: 0.875rem; color: #51cf66; font-weight: 600;">📞 <%= contact.agentPhone %></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; color: #ffffff; margin-bottom: 0.25rem;"><%= contact.propertyTitle %></div>
+                                    <div style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);">
+                                        <%= contact.property.location.area %>, <%= contact.property.location.state %>
+                                    </div>
+                                    <div style="font-size: 0.875rem; color: #51cf66; font-weight: 600;">
+                                        ₦<%= contact.property.price.toLocaleString() %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; <%= contact.status === 'contacted' ? 'background: rgba(81, 207, 102, 0.2); color: #51cf66;' : contact.status === 'closed' ? 'background: rgba(255, 107, 107, 0.2); color: #ff6b6b;' : 'background: rgba(255, 212, 59, 0.2); color: #ffd43b;' %>">
+                                        <%= contact.status.charAt(0).toUpperCase() + contact.status.slice(1) %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+                                        <% if (contact.status === 'pending') { %>
+                                            <form action="/admin/update-contact/<%= contact._id %>" method="POST" style="display: inline;">
+                                                <input type="hidden" name="status" value="contacted">
+                                                <button type="submit" class="btn btn-sm btn-success">Mark Contacted</button>
+                                            </form>
+                                        <% } %>
+                                        <% if (contact.status !== 'closed') { %>
+                                            <form action="/admin/update-contact/<%= contact._id %>" method="POST" style="display: inline;">
+                                                <input type="hidden" name="status" value="closed">
+                                                <button type="submit" class="btn btn-sm btn-danger">Close</button>
+                                            </form>
+                                        <% } %>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <% if (contacts.length > 10) { %>
+                <div class="pagination-container">
+                    <button class="pagination-btn" onclick="previousPage()" id="prevBtn">← Previous</button>
+                    <span class="pagination-info" id="pageInfo">Showing 1-10 of <%= contacts.length %></span>
+                    <button class="pagination-btn" onclick="nextPage()" id="nextBtn">Next →</button>
+                </div>
+            <% } %>
+        <% } else { %>
+            <div style="padding: 3rem; text-align: center;">
+                <div style="color: rgba(255, 255, 255, 0.7);">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">📞</div>
+                    <p style="font-size: 1.25rem; margin-bottom: 1rem;">No contact requests found</p>
+                    <p>Contact requests will appear here when clients contact agents</p>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <div style="text-align: center; margin-top: 2rem;">
+        <a href="/admin/dashboard" class="btn btn-primary btn-lg">← Back to Dashboard</a>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+const rowsPerPage = 10;
+let filteredRows = [];
+
+function filterContacts() {
+    const searchTerm = document.getElementById('contactSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('.contact-row');
+    filteredRows = [];
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            filteredRows.push(row);
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Reset pagination
+    currentPage = 1;
+    paginateRows();
+}
+
+function paginateRows() {
+    const rows = filteredRows.length > 0 ? filteredRows : document.querySelectorAll('.contact-row');
+    const totalRows = rows.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+    
+    // Hide all rows first
+    rows.forEach(row => row.style.display = 'none');
+    
+    // Show current page rows
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
+    
+    for (let i = startIndex; i < endIndex; i++) {
+        if (rows[i]) {
+            rows[i].style.display = '';
+        }
+    }
+    
+    // Update pagination info
+    const pageInfo = document.getElementById('pageInfo');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    if (pageInfo) {
+        pageInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${totalRows}`;
+    }
+    
+    if (prevBtn) {
+        prevBtn.disabled = currentPage === 1;
+    }
+    
+    if (nextBtn) {
+        nextBtn.disabled = currentPage === totalPages;
+    }
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        paginateRows();
+    }
+}
+
+function nextPage() {
+    const rows = filteredRows.length > 0 ? filteredRows : document.querySelectorAll('.contact-row');
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+    
+    if (currentPage < totalPages) {
+        currentPage++;
+        paginateRows();
+    }
+}
+
+// Initialize pagination on page load
+document.addEventListener('DOMContentLoaded', function() {
+    paginateRows();
+});
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,265 @@
+<%- include('../partials/header') %>
+
+<div class="container" style="padding: 2rem 0;">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: #667eea;">👋 Welcome back, <%= user.fullName %>!</h1>
+        <p style="color: rgba(255, 255, 255, 0.8);">Browse properties and connect with verified agents</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-icon">🏠</span>
+            <span class="stat-number"><%= properties.length %></span>
+            <span class="stat-label">Available Properties</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-icon">📞</span>
+            <span class="stat-number">0</span>
+            <span class="stat-label">Agents Contacted</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-icon">⭐</span>
+            <span class="stat-number">0</span>
+            <span class="stat-label">Reviews Given</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-icon">🔍</span>
+            <span class="stat-number"><%= properties.filter(p => p.status === 'active').length %></span>
+            <span class="stat-label">Active Listings</span>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card mb-4">
+        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; color: #667eea;">⚡ Quick Actions</h2>
+        <div class="grid grid-4">
+            <a href="/houses" class="btn btn-success">🔍 Browse All Properties</a>
+            <a href="/about" class="btn btn-secondary">ℹ️ About HomLet</a>
+            <a href="/contact" class="btn btn-warning">📞 Contact Support</a>
+            <a href="/" class="btn btn-primary">🏠 Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Smart Search Filters -->
+    <div class="card mb-4">
+        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; color: #667eea;">🔍 Smart Property Search</h2>
+        <form method="GET" action="/client/dashboard" class="smart-search-form">
+            <div class="search-grid">
+                <div class="form-group">
+                    <label class="form-label">State</label>
+                    <input type="text" name="state" 
+                           value="<%= typeof filters !== 'undefined' && filters.state ? filters.state : '' %>" 
+                           placeholder="Lagos, Abuja, Rivers..." 
+                           class="smart-search-input"
+                           list="states-list">
+                    <datalist id="states-list">
+                        <option value="Lagos">
+                        <option value="Abuja">
+                        <option value="Rivers">
+                        <option value="Ogun">
+                        <option value="Kano">
+                        <option value="Kaduna">
+                        <option value="Oyo">
+                        <option value="Delta">
+                        <option value="Edo">
+                        <option value="Anambra">
+                    </datalist>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Area</label>
+                    <input type="text" name="area" 
+                           value="<%= typeof filters !== 'undefined' && filters.area ? filters.area : '' %>" 
+                           placeholder="Victoria Island, Lekki, Ikeja..." 
+                           class="smart-search-input"
+                           list="areas-list">
+                    <datalist id="areas-list">
+                        <option value="Victoria Island">
+                        <option value="Lekki">
+                        <option value="Ikeja">
+                        <option value="Ikoyi">
+                        <option value="Surulere">
+                        <option value="Yaba">
+                        <option value="Gbagada">
+                        <option value="Ajah">
+                        <option value="Magodo">
+                        <option value="Alimosho">
+                        <option value="Igando">
+                        <option value="Egbeda">
+                        <option value="Isolo">
+                        <option value="Oshodi">
+                        <option value="Maryland">
+                    </datalist>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Min Price (₦)</label>
+                    <input type="number" name="minPrice" 
+                           value="<%= typeof filters !== 'undefined' && filters.minPrice ? filters.minPrice : '' %>" 
+                           placeholder="100,000" 
+                           class="smart-search-input">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Max Price (₦)</label>
+                    <input type="number" name="maxPrice" 
+                           value="<%= typeof filters !== 'undefined' && filters.maxPrice ? filters.maxPrice : '' %>" 
+                           placeholder="5,000,000" 
+                           class="smart-search-input">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Property Type</label>
+                    <select name="type" class="smart-search-input">
+                        <option value="">All Types</option>
+                        <option value="rent" <%= typeof filters !== 'undefined' && filters.type === 'rent' ? 'selected' : '' %>>For Rent</option>
+                        <option value="buy" <%= typeof filters !== 'undefined' && filters.type === 'buy' ? 'selected' : '' %>>For Sale</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="search-actions">
+                <button type="submit" class="btn btn-primary">🔍 Search Properties</button>
+                <a href="/client/dashboard" class="btn btn-secondary">🔄 Clear Filters</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Properties Grid -->
+    <div style="margin-bottom: 2rem;">
+        <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: #667eea;">🏠 Available Properties</h2>
+        
+        <div class="grid grid-3">
+            <% if (typeof properties !== 'undefined' && properties && properties.length > 0) { %>
+                <% properties.forEach(property => { %>
+                    <div class="property-card">
+                        <div class="property-image-container">
+                            <img src="/uploads/properties/<%= property.images[0] %>" alt="<%= property.title %>">
+                            <div class="property-badge">
+                                <%= property.propertyType === 'rent' ? 'For Rent' : 'For Sale' %>
+                            </div>
+                            <div class="property-views">
+                                👁️ <%= property.views %> views
+                            </div>
+                        </div>
+                        
+                        <div class="property-card-content">
+                            <h3 class="property-title"><%= property.title %></h3>
+                            <p class="property-location">📍 <%= property.location.area %>, <%= property.location.state %></p>
+                            <p class="property-price">₦<%= property.price.toLocaleString() %></p>
+                            <p class="property-description"><%= property.description.substring(0, 100) %>...</p>
+                            
+                            <div class="property-meta">
+                                <div class="property-agent">
+                                    <span>Agent: <%= property.agent.fullName %></span>
+                                </div>
+                                <div class="property-date">
+                                    <%= new Date(property.createdAt).toLocaleDateString() %>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                                <a href="/property/<%= property._id %>" class="btn btn-primary" style="flex: 1;">View Details</a>
+                                
+                                <button onclick="contactAgent('<%= property.agent._id %>', '<%= property._id %>')" class="btn btn-success contact-btn" style="white-space: nowrap;">
+                                    📞 Contact Agent
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 0;">
+                    <div style="color: rgba(255, 255, 255, 0.7);">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">🏠</div>
+                        <p style="font-size: 1.5rem; margin-bottom: 1rem;">No properties found matching your criteria</p>
+                        <p>Try adjusting your search filters or <a href="/client/dashboard" style="color: #667eea;">browse all properties</a></p>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+
+function contactAgent(agentId, propertyId) {
+    // Show loading state
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<span class="loading-spinner"></span> Contacting...';
+    button.disabled = true;
+    
+    // Send contact notification to backend
+    fetch('/client/contact-agent', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            agentId: agentId,
+            propertyId: propertyId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccessNotification('✅ Contact request sent! The agent has been notified and will reach out to you soon. Agent Phone: ' + data.agentPhone);
+        } else {
+            showErrorNotification('❌ Error: ' + (data.error || 'Failed to send contact request'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showErrorNotification('❌ Failed to send contact request. Please try again.');
+    })
+    .finally(() => {
+        // Restore button state
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 2000);
+    });
+}
+
+function showSuccessNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification success';
+    notification.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-icon">✅</div>
+            <div class="notification-message">${message}</div>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+function showErrorNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification error';
+    notification.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-icon">❌</div>
+            <div class="notification-message">${message}</div>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+</script>
+
+<%- include('../partials/footer') %>
